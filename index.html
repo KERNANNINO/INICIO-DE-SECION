@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión y Registro</title>
+    <link rel="stylesheet" href="G:\html proyectos\estilos.css">
+</head>
+<body>
+    <div class="contenedor">
+        
+        <div class="caja-inicio">
+            <h1>Iniciar Sesión</h1>
+            <form id="formularioInicio">
+                <label for="usuarioInicio">Nombre de Usuario:</label>
+                <input type="text" id="usuarioInicio" name="usuarioInicio" required>
+                
+                <label for="contraseñaInicio">Contraseña:</label>
+                <div style="position: relative;">
+                    <input type="password" id="contraseñaInicio" name="contraseñaInicio" required>
+                    <span class="mostrar-contraseña" onclick="mostrarContraseña('contraseñaInicio')">👁️</span>
+                </div>
+                
+                <button type="submit">Iniciar Sesión</button>
+                <div class="enlaces">
+                    <a href="#" onclick="mostrarRegistro()">Crear una nueva cuenta</a>
+                    <a href="#" onclick="olvidarContraseña()">¿Olvidaste tu contraseña?</a>
+                </div>
+                <p class="error oculto" id="mensajeError">Demasiados intentos fallidos. Por favor, inténtelo más tarde.</p>
+            </form>
+        </div>
+
+        
+        <div class="caja-registro oculto" id="cajaRegistro">
+            <h2>Crear Cuenta</h2>
+            <form id="formularioRegistro">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" name="apellido" required>
+
+                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+
+                <label for="correoRegistro">Correo Electrónico:</label>
+                <input type="email" id="correoRegistro" name="correoRegistro" readonly required>
+
+                <label for="contraseñaRegistro">Contraseña:</label>
+                <div style="position: relative;">
+                    <input type="password" id="contraseñaRegistro" name="contraseñaRegistro" required>
+                    <span class="mostrar-contraseña" onclick="mostrarContraseña('contraseñaRegistro')">👁️</span>
+                </div>
+
+                <button type="submit">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let intentosInicio = 0;
+        const maxIntentos = 3;
+
+        function mostrarRegistro() {
+            document.getElementById('formularioInicio').parentElement.classList.add('oculto');
+            document.getElementById('cajaRegistro').classList.remove('oculto');
+        }
+
+        function olvidarContraseña() {
+            alert('Por favor, contacte con soporte para restablecer su contraseña.');
+        }
+
+        function mostrarContraseña(campoId) {
+            const campoContraseña = document.getElementById(campoId);
+            const tipoCampo = campoContraseña.getAttribute('type');
+            if (tipoCampo === 'password') {
+                campoContraseña.setAttribute('type', 'text');
+            } else {
+                campoContraseña.setAttribute('type', 'password');
+            }
+        }
+
+        
+        document.getElementById('nombre').addEventListener('input', generarCorreo);
+        document.getElementById('apellido').addEventListener('input', generarCorreo);
+        document.getElementById('fechaNacimiento').addEventListener('input', generarCorreo);
+
+        function generarCorreo() {
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+            let correo = '';
+            
+            if (nombre && apellido && fechaNacimiento) {
+                const año = new Date(fechaNacimiento).getFullYear().toString().slice(-2);
+                const correoNombre = nombre.slice(-4).toLowerCase();
+                const correoApellido = apellido.slice(0, 3).toLowerCase();
+                correo = `${correoApellido}${correoNombre}${año}@gmail.com`;
+                document.getElementById('correoRegistro').value = correo;
+            }
+        }
+
+        document.getElementById('formularioRegistro').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const correo = document.getElementById('correoRegistro').value;
+            const contraseña = document.getElementById('contraseñaRegistro').value;
+
+            const regexContraseña = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&.,_-]).{8,}$/;
+
+            if (!regexContraseña.test(contraseña)) {
+                alert('La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y caracteres especiales.');
+                return;
+            }
+
+            
+            localStorage.setItem('correoRegistrado', correo);
+            localStorage.setItem('contraseñaRegistrada', contraseña);
+
+            console.log('Usuario creado:', correo);
+            console.log('Contraseña:', contraseña);
+
+            alert('Cuenta creada con éxito. Ahora puedes iniciar sesión.');
+
+            
+            document.getElementById('cajaRegistro').classList.add('oculto');
+            document.getElementById('formularioInicio').parentElement.classList.remove('oculto');
+        });
+
+        document.getElementById('formularioInicio').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            if (intentosInicio >= maxIntentos) {
+                document.getElementById('mensajeError').classList.remove('oculto');
+                return;
+            }
+
+            const usuarioInicio = document.getElementById('usuarioInicio').value.toLowerCase();
+            const contraseñaInicio = document.getElementById('contraseñaInicio').value;
+
+            const correoGuardado = localStorage.getItem('correoRegistrado');
+            const contraseñaGuardada = localStorage.getItem('contraseñaRegistrada');
+
+            if (usuarioInicio === correoGuardado && contraseñaInicio === contraseñaGuardada) {
+                alert('Inicio de sesión exitoso');
+                console.log('Inicio de sesión:', { usuarioInicio, contraseñaInicio });
+                intentosInicio = 0; 
+            } else {
+                intentosInicio++;
+                if (intentosInicio >= maxIntentos) {
+                    document.getElementById('mensajeError').classList.remove('oculto');
+                } else {
+                    alert(`Correo o contraseña incorrectos. Intento ${intentosInicio} de ${maxIntentos}.`);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1b2838;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: #c7d5e0;
+}
+
+.contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
+    padding: 10px;
+}
+
+.caja-inicio, .caja-registro {
+    background-color: #2a475e;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1, h2 {
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #66c0f4;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #4a9cd6;
+}
+
+.enlaces {
+    margin-top: 10px;
+}
+
+.enlaces a {
+    color: #66c0f4;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.enlaces a:hover {
+    text-decoration: underline;
+}
+
+.oculto {
+    display: none;
+}
+
+.mostrar-contraseña {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.error {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+
+@media (min-width: 600px) {
+    .contenedor {
+        flex-direction: row;
+    }
+}
