@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de Sesión y Registro</title>
     <link rel="stylesheet" href="css\styles.css">
+    
 </head>
 <body>
     <div class="contenedor">
@@ -58,6 +59,7 @@
                 <p class="success oculto" id="mensajeExitoRegistro">Cuenta creada con éxito. Ahora puedes iniciar sesión.</p>
             </form>
         </div>
+
         <div class="caja-recuperar-contraseña oculto" id="cajaRecuperarContraseña">
             <h2>Recuperar Contraseña</h2>
             <form id="formularioRecuperarContraseña">
@@ -120,6 +122,8 @@
         document.getElementById('formularioRegistro').addEventListener('submit', function(event) {
             event.preventDefault();
 
+            const usuarios = JSON.parse(localStorage.getItem('usuariosRegistrados')) || [];
+
             const correo = document.getElementById('correoRegistro').value;
             const contraseña = document.getElementById('contraseñaRegistro').value;
             const deporteFavorito = document.getElementById('deporteFavorito').value.toLowerCase();
@@ -133,9 +137,8 @@
                 return;
             }
 
-            localStorage.setItem('correoRegistrado', correo);
-            localStorage.setItem('contraseñaRegistrada', contraseña);
-            localStorage.setItem('respuestaDeporteFavorito', deporteFavorito);
+            usuarios.push({ correo, contraseña, deporteFavorito });
+            localStorage.setItem('usuariosRegistrados', JSON.stringify(usuarios));
 
             document.getElementById('mensajeExitoRegistro').classList.remove('oculto');
 
@@ -144,7 +147,6 @@
                 document.querySelector('.caja-inicio').classList.remove('oculto');
             }, 2000);
         });
-
         document.getElementById('formularioInicio').addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -158,10 +160,10 @@
 
             console.log('Datos Inicio:', { usuarioInicio, contraseñaInicio });
 
-            const correoGuardado = localStorage.getItem('correoRegistrado');
-            const contraseñaGuardada = localStorage.getItem('contraseñaRegistrada');
+            const usuarios = JSON.parse(localStorage.getItem('usuariosRegistrados')) || [];
+            const usuario = usuarios.find(u => u.correo === usuarioInicio && u.contraseña === contraseñaInicio);
 
-            if (usuarioInicio === correoGuardado && contraseñaInicio === contraseñaGuardada) {
+            if (usuario) {
                 document.getElementById('mensajeExitoInicio').classList.remove('oculto');
                 intentosInicio = 0;
             } else {
@@ -182,10 +184,10 @@
 
             console.log('Datos Recuperar:', { correoRecuperar, respuestaSeguridad, nuevaContraseña });
 
-            const correoGuardado = localStorage.getItem('correoRegistrado');
-            const respuestaGuardada = localStorage.getItem('respuestaDeporteFavorito');
+            const usuarios = JSON.parse(localStorage.getItem('usuariosRegistrados')) || [];
+            const usuario = usuarios.find(u => u.correo === correoRecuperar && u.deporteFavorito === respuestaSeguridad);
 
-            if (correoRecuperar === correoGuardado && respuestaSeguridad === respuestaGuardada) {
+            if (usuario) {
                 const regexContraseña = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&.,_-]).{8,}$/;
 
                 if (!regexContraseña.test(nuevaContraseña)) {
@@ -194,7 +196,8 @@
                     return;
                 }
 
-                localStorage.setItem('contraseñaRegistrada', nuevaContraseña);
+                usuario.contraseña = nuevaContraseña;
+                localStorage.setItem('usuariosRegistrados', JSON.stringify(usuarios));
                 document.getElementById('mensajeExitoRecuperar').classList.remove('oculto');
                 
                 setTimeout(() => {
