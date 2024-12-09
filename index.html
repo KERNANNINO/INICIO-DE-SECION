@@ -8,7 +8,6 @@
 </head>
 <body>
     <div class="contenedor">
-        
         <div class="caja-inicio">
             <h1>Iniciar Sesión</h1>
             <form id="formularioInicio">
@@ -24,12 +23,12 @@
                 <button type="submit">Iniciar Sesión</button>
                 <div class="enlaces">
                     <a href="#" onclick="mostrarRegistro()">Crear una nueva cuenta</a>
-                    <a href="#" onclick="olvidarContraseña()">¿Olvidaste tu contraseña?</a>
+                    <a href="#" onclick="mostrarRecuperarContraseña()">¿Olvidaste tu contraseña?</a>
                 </div>
                 <p class="error oculto" id="mensajeError">Demasiados intentos fallidos. Por favor, inténtelo más tarde.</p>
+                <p class="success oculto" id="mensajeExitoInicio">Inicio de sesión exitoso.</p>
             </form>
         </div>
-
         
         <div class="caja-registro oculto" id="cajaRegistro">
             <h2>Crear Cuenta</h2>
@@ -52,7 +51,25 @@
                     <span class="mostrar-contraseña" onclick="mostrarContraseña('contraseñaRegistro')">👁️</span>
                 </div>
 
+                <label for="deporteFavorito">¿Cuál es tu deporte favorito?</label>
+                <input type="text" id="deporteFavorito" name="deporteFavorito" required>
+
                 <button type="submit">Crear Cuenta</button>
+                <p class="success oculto" id="mensajeExitoRegistro">Cuenta creada con éxito. Ahora puedes iniciar sesión.</p>
+            </form>
+        </div>
+        <div class="caja-recuperar-contraseña oculto" id="cajaRecuperarContraseña">
+            <h2>Recuperar Contraseña</h2>
+            <form id="formularioRecuperarContraseña">
+                <label for="correoRecuperar">Correo Electrónico:</label>
+                <input type="email" id="correoRecuperar" name="correoRecuperar" required>
+                <label for="preguntaSeguridad">¿Cuál es tu deporte favorito?</label>
+                <input type="text" id="preguntaSeguridad" name="preguntaSeguridad" required>
+                <label for="nuevaContraseña">Nueva Contraseña:</label>
+                <input type="password" id="nuevaContraseña" name="nuevaContraseña" required>
+                <button type="submit">Enviar</button>
+                <p class="success oculto" id="mensajeExitoRecuperar">Contraseña restablecida con éxito.</p>
+                <p class="error oculto" id="mensajeErrorRecuperar">El correo electrónico o la respuesta de seguridad no son correctos.</p>
             </form>
         </div>
     </div>
@@ -62,12 +79,13 @@
         const maxIntentos = 3;
 
         function mostrarRegistro() {
-            document.getElementById('formularioInicio').parentElement.classList.add('oculto');
+            document.querySelector('.caja-inicio').classList.add('oculto');
             document.getElementById('cajaRegistro').classList.remove('oculto');
         }
 
-        function olvidarContraseña() {
-            alert('Por favor, contacte con soporte para restablecer su contraseña.');
+        function mostrarRecuperarContraseña() {
+            document.querySelector('.caja-inicio').classList.add('oculto');
+            document.getElementById('cajaRecuperarContraseña').classList.remove('oculto');
         }
 
         function mostrarContraseña(campoId) {
@@ -80,7 +98,6 @@
             }
         }
 
-        
         document.getElementById('nombre').addEventListener('input', generarCorreo);
         document.getElementById('apellido').addEventListener('input', generarCorreo);
         document.getElementById('fechaNacimiento').addEventListener('input', generarCorreo);
@@ -90,7 +107,7 @@
             const apellido = document.getElementById('apellido').value;
             const fechaNacimiento = document.getElementById('fechaNacimiento').value;
             let correo = '';
-            
+
             if (nombre && apellido && fechaNacimiento) {
                 const año = new Date(fechaNacimiento).getFullYear().toString().slice(-2);
                 const correoNombre = nombre.slice(-4).toLowerCase();
@@ -105,6 +122,9 @@
 
             const correo = document.getElementById('correoRegistro').value;
             const contraseña = document.getElementById('contraseñaRegistro').value;
+            const deporteFavorito = document.getElementById('deporteFavorito').value.toLowerCase();
+
+            console.log('Datos Registro:', { nombre: document.getElementById('nombre').value, apellido: document.getElementById('apellido').value, fechaNacimiento: document.getElementById('fechaNacimiento').value, correo, contraseña, deporteFavorito });
 
             const regexContraseña = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&.,_-]).{8,}$/;
 
@@ -113,18 +133,16 @@
                 return;
             }
 
-            
             localStorage.setItem('correoRegistrado', correo);
             localStorage.setItem('contraseñaRegistrada', contraseña);
+            localStorage.setItem('respuestaDeporteFavorito', deporteFavorito);
 
-            console.log('Usuario creado:', correo);
-            console.log('Contraseña:', contraseña);
+            document.getElementById('mensajeExitoRegistro').classList.remove('oculto');
 
-            alert('Cuenta creada con éxito. Ahora puedes iniciar sesión.');
-
-            
-            document.getElementById('cajaRegistro').classList.add('oculto');
-            document.getElementById('formularioInicio').parentElement.classList.remove('oculto');
+            setTimeout(() => {
+                document.getElementById('cajaRegistro').classList.add('oculto');
+                document.querySelector('.caja-inicio').classList.remove('oculto');
+            }, 2000);
         });
 
         document.getElementById('formularioInicio').addEventListener('submit', function(event) {
@@ -138,13 +156,14 @@
             const usuarioInicio = document.getElementById('usuarioInicio').value.toLowerCase();
             const contraseñaInicio = document.getElementById('contraseñaInicio').value;
 
+            console.log('Datos Inicio:', { usuarioInicio, contraseñaInicio });
+
             const correoGuardado = localStorage.getItem('correoRegistrado');
             const contraseñaGuardada = localStorage.getItem('contraseñaRegistrada');
 
             if (usuarioInicio === correoGuardado && contraseñaInicio === contraseñaGuardada) {
-                alert('Inicio de sesión exitoso');
-                console.log('Inicio de sesión:', { usuarioInicio, contraseñaInicio });
-                intentosInicio = 0; 
+                document.getElementById('mensajeExitoInicio').classList.remove('oculto');
+                intentosInicio = 0;
             } else {
                 intentosInicio++;
                 if (intentosInicio >= maxIntentos) {
@@ -152,6 +171,38 @@
                 } else {
                     alert(`Correo o contraseña incorrectos. Intento ${intentosInicio} de ${maxIntentos}.`);
                 }
+            }
+        });
+
+        document.getElementById('formularioRecuperarContraseña').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const correoRecuperar = document.getElementById('correoRecuperar').value;
+            const respuestaSeguridad = document.getElementById('preguntaSeguridad').value.toLowerCase();
+            const nuevaContraseña = document.getElementById('nuevaContraseña').value;
+
+            console.log('Datos Recuperar:', { correoRecuperar, respuestaSeguridad, nuevaContraseña });
+
+            const correoGuardado = localStorage.getItem('correoRegistrado');
+            const respuestaGuardada = localStorage.getItem('respuestaDeporteFavorito');
+
+            if (correoRecuperar === correoGuardado && respuestaSeguridad === respuestaGuardada) {
+                const regexContraseña = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&.,_-]).{8,}$/;
+
+                if (!regexContraseña.test(nuevaContraseña)) {
+                    document.getElementById('mensajeErrorRecuperar').textContent = 'La nueva contraseña debe tener al menos 8 caracteres, incluyendo letras, números y caracteres especiales.';
+                    document.getElementById('mensajeErrorRecuperar').classList.remove('oculto');
+                    return;
+                }
+
+                localStorage.setItem('contraseñaRegistrada', nuevaContraseña);
+                document.getElementById('mensajeExitoRecuperar').classList.remove('oculto');
+                
+                setTimeout(() => {
+                    document.getElementById('cajaRecuperarContraseña').classList.add('oculto');
+                    document.querySelector('.caja-inicio').classList.remove('oculto');
+                }, 2000);
+            } else {
+                document.getElementById('mensajeErrorRecuperar').classList.remove('oculto');
             }
         });
     </script>
